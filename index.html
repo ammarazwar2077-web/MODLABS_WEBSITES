@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d1b">
+<title>MODLABS | Digital Solutions</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+:root{
+ --bg:#080d1b;--panel:#101a2e;--panel2:#14213a;
+ --blue:#3978ff;--blue2:#75a3ff;--white:#f7f9ff;
+ --muted:#9baac4;--line:#253550;--green:#53d69a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:Arial,Helvetica,sans-serif;line-height:1.6}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1160px,92%);margin:auto}
+header{position:sticky;top:0;z-index:20;background:#080d1bef;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav{height:76px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{width:43px;height:43px}
+.brand-name{font-weight:950;letter-spacing:2px;font-size:22px}
+.brand-name span{color:var(--blue2)}
+.navlinks{display:flex;gap:25px;color:var(--muted);font-size:13px}
+.navlinks a:hover{color:white}
+.btn{border:1px solid transparent;border-radius:10px;background:var(--blue);color:white;padding:13px 20px;font-weight:800;transition:.2s}
+.btn:hover{background:#245bd2;transform:translateY(-1px)}
+.btn.outline{background:transparent;border-color:var(--line);color:white}
+.btn.outline:hover{border-color:var(--blue2);color:var(--blue2)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.hero{min-height:560px;display:flex;align-items:center;background:radial-gradient(ellipse at 80% 30%,#193b7c77,transparent 45%),linear-gradient(135deg,#080d1b,#0b1427);border-bottom:1px solid var(--line)}
+.hero-inner{padding:85px 0}
+.eyebrow{color:var(--blue2);font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:clamp(46px,7vw,82px);line-height:1.02;letter-spacing:-3.5px;margin:22px 0}
+.gradient{background:linear-gradient(90deg,#fff,#75a3ff 65%,#3978ff);color:transparent;background-clip:text}
+.hero p{max-width:620px;color:var(--muted);font-size:17px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.section{padding:78px 0}
+.section-heading{font-size:clamp(30px,4vw,46px);letter-spacing:-1.5px;margin:10px 0}
+.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-top:32px}
+.card{background:linear-gradient(145deg,#121e34,#0d1729);border:1px solid var(--line);border-radius:17px;padding:25px}
+.card-icon{font-size:27px;color:var(--blue2);margin-bottom:13px}
+.card h3{margin-bottom:8px}
+.card p{font-size:14px;color:var(--muted)}
+#planner{scroll-margin-top:90px}
+.planner-grid{display:grid;grid-template-columns:1.45fr .8fr;gap:22px;align-items:start;margin-top:30px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:28px}
+.progress-head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:9px}
+.progress{height:6px;background:#24334e;border-radius:20px;overflow:hidden;margin-bottom:30px}
+.progress-fill{height:100%;width:12.5%;background:var(--blue);transition:.25s}
+.question{display:none}
+.question.active{display:block}
+.question h3{font-size:25px;letter-spacing:-.6px;margin-bottom:7px}
+.question>p{color:var(--muted);font-size:14px;margin-bottom:23px}
+.field{margin:17px 0}
+.field label{display:block;font-size:13px;font-weight:750;margin-bottom:7px}
+input,select,textarea{width:100%;padding:13px 14px;color:white;background:#0b1425;border:1px solid #2b3d5c;border-radius:10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3978ff20}
+select option{background:#101a2e}
+textarea{min-height:100px;resize:vertical}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:13px;cursor:pointer}
+.option:has(input:checked){background:#17305b;border-color:var(--blue)}
+.option input{width:auto;margin-top:4px;accent-color:var(--blue)}
+.actions{display:flex;justify-content:space-between;gap:10px;margin-top:27px}
+.price-card{position:sticky;top:100px;background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:25px}
+.price-card h3{font-size:17px}
+.price-number{font-size:32px;font-weight:950;letter-spacing:-1px;margin:13px 0}
+.price-number small{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:0}
+.price-line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.price-line.total{font-weight:900;font-size:16px;border:0;padding-top:17px}
+.price-note{font-size:11px;color:var(--muted);margin-top:17px}
+.message{font-size:13px;margin-top:12px;min-height:20px;color:#ff9f9f}
+.auth-overlay{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center;padding:15px}
+.auth-overlay.show{display:flex}
+.auth-box{width:min(430px,100%);max-height:90vh;overflow:auto;background:#111e34;border:1px solid var(--line);border-radius:19px;padding:28px}
+.auth-box h2{font-size:26px}
+.auth-box p{font-size:13px;color:var(--muted);margin:6px 0 18px}
+.auth-footer{font-size:13px;color:var(--muted);margin-top:16px}
+.auth-footer button{background:none;border:0;color:var(--blue2);font-weight:800}
+.account{display:none;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
+.account.show{display:flex}
+#accountEmail{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.result{display:none;margin-top:20px;border:1px solid #255c46;background:#0c2a20;padding:22px;border-radius:14px}
+.result.show{display:block}
+.result h3{color:var(--green);margin-bottom:7px}
+.result p{font-size:13px;color:#b8d8c8}
+.result .btn{margin-top:16px;width:100%}
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:12px}
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:800px){
+ .cards{grid-template-columns:1fr}
+ .planner-grid{grid-template-columns:1fr}
+ .price-card{position:static;grid-row:1}
+ .hero{min-height:auto}
+ .hero-inner{padding:75px 0}
+}
+@media(max-width:480px){
+ .navlinks{display:none}
+ .nav{height:68px}
+ .brand-name{font-size:19px}
+ .options{grid-template-columns:1fr}
+ .panel{padding:19px}
+ h1{letter-spacing:-2px}
+}
+</style>
+</head>
+
+<body>
+<header>
+ <div class="wrap nav">
+  <a class="brand" href="#">
+   <svg class="brand-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="mlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#83b0ff"/><stop offset="1" stop-color="#2864ff"/></linearGradient></defs>
+    <path d="M8 84V16h19l23 31 23-31h19v68H72V44L50 73 28 44v40Z" fill="url(#mlg)"/>
+    <path d="M8 91h84" stroke="#83b0ff" stroke-width="3"/>
+   </svg>
+   <div class="brand-name">MOD<span>LABS</span></div>
+  </a>
+  <nav class="navlinks">
+   <a href="#services">Services</a><a href="#process">Process</a><a href="#planner">Quotation</a>
+  </nav>
+  <div id="accountBar" class="account">
+   <span id="accountEmail"></span>
+   <button class="btn outline" onclick="logout()">Sign out</button>
+  </div>
+  <button class="btn outline" id="loginNav" onclick="openAuth('login')">Login</button>
+ </div>
+</header>
+
+<main>
+<section class="hero">
+ <div class="wrap hero-inner">
+  <div class="eyebrow">MODLABS · Digital solutions</div>
+  <h1>Ideas into<br><span class="gradient">digital reality.</span></h1>
+  <p>We create modern websites and digital experiences designed to help businesses move forward. Tell us what you need and receive an instant project estimate.</p>
+  <div class="hero-actions">
+   <button class="btn" onclick="startPlanner()">Build your quotation ↗</button>
+   <a class="btn outline" href="#services">Explore services</a>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="services">
+ <div class="wrap">
+  <div class="eyebrow">What we do</div>
+  <h2 class="section-heading">Designed to make an impact.</h2>
+  <p class="muted">Digital experiences for businesses, brands and ambitious ideas.</p>
+  <div class="cards">
+   <article class="card"><div class="card-icon">✳</div><h3>Business websites</h3><p>Professional websites that communicate your services, identity and value.</p></article>
+   <article class="card"><div class="card-icon">▦</div><h3>E-commerce</h3><p>Online catalogues and shopping experiences for your products.</p></article>
+   <article class="card"><div class="card-icon">⌘</div><h3>Custom platforms</h3><p>Interactive web experiences designed around your requirements.</p></article>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="process">
+ <div class="wrap">
+  <div class="eyebrow">Our process</div>
+  <h2 class="section-heading">A clear path from idea to launch.</h2>
+  <div class="cards">
+   <article class="card"><h3>01 · Discover</h3><p>Tell us about your business and website requirements.</p></article>
+   <article class="card"><h3>02 · Plan</h3><p>Review your project scope and estimated quotation.</p></article>
+   <article class="card"><h3>03 · Build</h3><p>After the final quotation is agreed, the project can move forward.</p></article>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="planner">
+ <div class="wrap">
+  <div class="eyebrow">Project planner</div>
+  <h2 class="section-heading">Let's build your quotation.</h2>
+  <p class="muted">Complete the questions to receive an estimated project price.</p>
+
+  <div class="planner-grid">
+   <div class="panel">
+    <div class="progress-head"><span id="stepLabel">Step 1 of 8</span><span id="stepPercent">13%</span></div>
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+    <form id="quoteForm">
+     <div class="question active" data-step="0">
+      <h3>Your details.</h3><p>How can we identify your project?</p>
+      <div class="field"><label>Full name *</label><input name="customer_name" required placeholder="Your name"></div>
+      <div class="field"><label>Business name *</label><input name="business_name" required placeholder="Your business"></div>
+      <div class="field"><label>Email address *</label><input type="email" name="customer_email" required placeholder="you@example.com"></div>
+      <div class="field"><label>Phone / WhatsApp *</label><input name="customer_phone" required placeholder="+94 ..."></div>
+     </div>
+
+     <div class="question" data-step="1">
+      <h3>What are we building?</h3><p>Choose the closest project type.</p>
+      <div class="field"><label>Website type *</label><select name="website_type" required>
+       <option value="">Choose a type</option>
+       <option value="landing">Landing page</option><option value="business">Business website</option>
+       <option value="portfolio">Portfolio website</option><option value="store">Online store</option>
+       <option value="webapp">Custom web application</option>
+      </select></div>
+      <div class="field"><label>Business category</label><select name="business_type">
+       <option value="">Choose one</option><option>Education</option><option>Retail</option>
+       <option>Food and hospitality</option><option>Technology</option>
+       <option>Professional services</option><option>Health and wellness</option>
+       <option>Personal brand</option><option>Other</option>
+      </select></div>
+     </div>
+
+     <div class="question" data-step="2">
+      <h3>What's the main goal?</h3><p>What should the website help you achieve?</p>
+      <div class="field"><label>Main purpose</label><select name="goal">
+       <option>Introduce my business</option><option>Get more enquiries</option>
+       <option>Sell products online</option><option>Show my portfolio</option>
+       <option>Accept bookings</option><option>Share information</option>
+       <option>Create a custom platform</option>
+      </select></div>
+      <div class="field"><label>Target audience</label><input name="audience" placeholder="Who will visit your website?"></div>
+     </div>
+
+     <div class="question" data-step="3">
+      <h3>Website structure.</h3><p>How much content will the website contain?</p>
+      <div class="field"><label>Number of pages</label><select name="page_count" id="pageCount">
+       <option value="1">1 page</option><option value="3">2–3 pages</option>
+       <option value="5" selected>4–5 pages</option><option value="8">6–8 pages</option>
+       <option value="10">9–10 pages</option><option value="15">More than 10 pages</option>
+      </select></div>
+      <div class="field"><label>New website or redesign?</label><select name="project_status">
+       <option>New website</option><option>Redesign existing website</option>
+       <option>Adding features to an existing website</option>
+      </select></div>
+      <div class="field"><label>Existing website link (optional)</label><input name="existing_website" placeholder="https://"></div>
+     </div>
+
+     <div class="question" data-step="4">
+      <h3>Choose your features.</h3><p>Select all the features you need. Payment features are not offered through this quotation form.</p>
+      <div class="options">
+       <label class="option"><input type="checkbox" name="features" value="WhatsApp integration"> WhatsApp integration</label>
+       <label class="option"><input type="checkbox" name="features" value="Contact form"> Contact form</label>
+       <label class="option"><input type="checkbox" name="features" value="Product catalogue"> Product catalogue</label>
+       <label class="option"><input type="checkbox" name="features" value="Booking system"> Booking system</label>
+       <label class="option"><input type="checkbox" name="features" value="Customer accounts"> Customer accounts</label>
+       <label class="option"><input type="checkbox" name="features" value="Blog / news"> Blog / news</label>
+       <label class="option"><input type="checkbox" name="features" value="Live chat"> Live chat</label>
+       <label class="option"><input type="checkbox" name="features" value="SEO / analytics"> SEO / analytics</label>
+       <label class="option"><input type="checkbox" name="features" value="Custom animations"> Custom animations</label>
+      </div>
+     </div>
+
+     <div class="question" data-step="5">
+      <h3>Your design direction.</h3><p>Choose a style that matches your brand.</p>
+      <div class="field"><label>Preferred style</label><select name="design_style">
+       <option>Modern and professional</option><option>Luxury and premium</option>
+       <option>Clean and minimal</option><option>Creative and colourful</option>
+       <option>Dark and futuristic</option><option>Recommend a style for me</option>
+      </select></div>
+      <div class="field"><label>Preferred colours</label><input name="colours" placeholder="Example: navy and white"></div>
+      <div class="field"><label>Design reference website</label><input name="reference_website" placeholder="Optional link"></div>
+     </div>
+
+     <div class="question" data-step="6">
+      <h3>What materials do you have?</h3><p>Let us know what is ready.</p>
+      <div class="field"><label>Logo</label><select name="logo_status"><option>Logo ready</option><option>Need a logo</option><option>Need a logo redesign</option></select></div>
+      <div class="field"><label>Website content</label><select name="content_ready"><option>All text and images ready</option><option>Some content ready</option><option>Need help preparing content</option></select></div>
+      <div class="field"><label>Mobile compatibility</label><select name="mobile_support"><option>Mobile and desktop</option><option>Mostly mobile</option><option>Not sure</option></select></div>
+     </div>
+
+     <div class="question" data-step="7">
+      <h3>Final project details.</h3><p>Give us an idea of your expectations.</p>
+      <div class="field"><label>Expected budget</label><select name="budget">
+       <option>Not sure yet</option><option>Under LKR 10,000</option>
+       <option>LKR 10,000–20,000</option><option>LKR 20,000–35,000</option>
+       <option>LKR 35,000–50,000</option><option>Above LKR 50,000</option>
+      </select></div>
+      <div class="field"><label>Preferred timeline</label><select name="timeline">
+       <option>As soon as possible</option><option>Within 2 weeks</option>
+       <option>Within a month</option><option>Flexible</option>
+      </select></div>
+      <div class="field"><label>Additional requirements</label><textarea name="extra_notes" placeholder="Tell us anything else about your project..."></textarea></div>
+     </div>
+
+     <div class="actions">
+      <button type="button" class="btn outline" id="backBtn" onclick="previousStep()" disabled>← Back</button>
+      <button type="button" class="btn" id="nextBtn" onclick="nextStep()">Continue →</button>
+     </div>
+     <div class="message" id="formMessage"></div>
+    </form>
+
+    <div class="result" id="result">
+     <h3>✓ Your quotation request has been submitted.</h3>
+     <p>Your estimated quotation is ready. Download your A4 PDF below. MODLABS will review your requirements and confirm the final quotation separately.</p>
+     <button class="btn" onclick="downloadPDF()">↓ Download your quotation (PDF)</button>
+     <button class="btn outline" style="width:100%;margin-top:10px" onclick="newQuotation()">Start another quotation</button>
+    </div>
+   </div>
+
+   <aside class="price-card">
+    <div class="eyebrow">Live estimate</div>
+    <h3>Your project estimate</h3>
+    <div class="price-number" id="liveTotal">LKR 24,999</div>
+    <div class="price-line"><span>Website base</span><strong id="basePrice">LKR 24,999</strong></div>
+    <div class="price-line"><span>Additional pages</span><strong id="pagePrice">LKR 0</strong></div>
+    <div class="price-line"><span>Selected features</span><strong id="featurePrice">LKR 0</strong></div>
+    <div class="price-line total"><span>Estimated total</span><strong id="totalPrice">LKR 24,999</strong></div>
+    <p class="price-note">This is an automated planning estimate, not a binding final quotation. The final price is confirmed after MODLABS reviews the project.</p>
+   </aside>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap footer-inner">
+  <span>© <span id="year"></span> MODLABS. All rights reserved.</span>
+  <span>DIGITAL SOLUTIONS · WEB DEVELOPMENT</span>
+  <span>Built with purpose.</span>
+ </div>
+</footer>
+
+<div class="auth-overlay" id="authOverlay">
+ <div class="auth-box">
+  <div class="brand" style="margin-bottom:20px">
+   <svg class="brand-logo" viewBox="0 0 100 100"><path d="M8 84V16h19l23 31 23-31h19v68H72V44L50 73 28 44v40Z" fill="#3978ff"/></svg>
+   <div class="brand-name">MOD<span>LABS</span></div>
+  </div>
+  <h2 id="authTitle">Welcome back.</h2>
+  <p id="authDescription">Sign in to continue with your quotation.</p>
+  <div id="signupFields" style="display:none">
+   <div class="field"><label>Full name</label><input id="authName" autocomplete="name"></div>
+   <div class="field"><label>Business name</label><input id="authBusiness"></div>
+   <div class="field"><label>Phone / WhatsApp</label><input id="authPhone" autocomplete="tel"></div>
+  </div>
+  <div class="field"><label>Email address</label><input id="authEmail" type="email" autocomplete="email"></div>
+  <div class="field"><label>Password</label><input id="authPassword" type="password" autocomplete="current-password"></div>
+  <button class="btn" style="width:100%" id="authSubmit" onclick="submitAuth()">Sign in</button>
+  <button class="btn outline" style="width:100%;margin-top:10px" onclick="closeAuth()">Cancel</button>
+  <div class="message" 
