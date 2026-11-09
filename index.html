@@ -1,342 +1,339 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080d1b">
-<title>MODLABS | Digital Solutions</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071426">
+<title>MODLAB — Digital Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
 <style>
-:root{
- --bg:#080d1b;--panel:#101a2e;--panel2:#14213a;
- --blue:#3978ff;--blue2:#75a3ff;--white:#f7f9ff;
- --muted:#9baac4;--line:#253550;--green:#53d69a;
-}
+:root{--bg:#071426;--panel:#0c2039;--blue:#3169b5;--light:#75a7ed;--white:#f7faff;--muted:#9aabc2;--line:#ffffff1c}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--white);font-family:Arial,Helvetica,sans-serif;line-height:1.6}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
 button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
-.wrap{width:min(1160px,92%);margin:auto}
-header{position:sticky;top:0;z-index:20;background:#080d1bef;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
-.nav{height:76px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-logo{width:43px;height:43px}
-.brand-name{font-weight:950;letter-spacing:2px;font-size:22px}
-.brand-name span{color:var(--blue2)}
-.navlinks{display:flex;gap:25px;color:var(--muted);font-size:13px}
+.container{width:min(1160px,90%);margin:auto}
+.glass{background:#ffffff08;border:1px solid var(--line);backdrop-filter:blur(18px);box-shadow:0 20px 65px #0003}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 21px;border:0;border-radius:10px;background:linear-gradient(130deg,#6296e0,#28558f);color:white;font-size:13px;font-weight:700;cursor:pointer;transition:.25s}
+.btn:hover{transform:translateY(-3px);filter:brightness(1.12)}
+.btn.secondary{background:#ffffff0b;border:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font:700 22px 'Space Grotesk'}
+.logo{width:39px;height:39px;border-radius:12px;background:linear-gradient(145deg,#76a5e9,#204779);display:grid;place-items:center;font-size:18px;box-shadow:0 5px 25px #3265a955}
+.brand small{display:block;font:600 9px 'DM Sans';color:#9bb1cf;letter-spacing:3px}
+nav{position:fixed;z-index:50;top:14px;left:50%;transform:translateX(-50%);width:min(1160px,94%);padding:12px 17px;border-radius:16px;display:flex;align-items:center;justify-content:space-between;background:#061528db;border:1px solid var(--line);backdrop-filter:blur(20px)}
+.navlinks{display:flex;align-items:center;gap:25px}
+.navlinks a{font-size:12px;color:#c5d1e0}
 .navlinks a:hover{color:white}
-.btn{border:1px solid transparent;border-radius:10px;background:var(--blue);color:white;padding:13px 20px;font-weight:800;transition:.2s}
-.btn:hover{background:#245bd2;transform:translateY(-1px)}
-.btn.outline{background:transparent;border-color:var(--line);color:white}
-.btn.outline:hover{border-color:var(--blue2);color:var(--blue2)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.hero{min-height:560px;display:flex;align-items:center;background:radial-gradient(ellipse at 80% 30%,#193b7c77,transparent 45%),linear-gradient(135deg,#080d1b,#0b1427);border-bottom:1px solid var(--line)}
-.hero-inner{padding:85px 0}
-.eyebrow{color:var(--blue2);font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
-h1{font-size:clamp(46px,7vw,82px);line-height:1.02;letter-spacing:-3.5px;margin:22px 0}
-.gradient{background:linear-gradient(90deg,#fff,#75a3ff 65%,#3978ff);color:transparent;background-clip:text}
-.hero p{max-width:620px;color:var(--muted);font-size:17px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
-.section{padding:78px 0}
-.section-heading{font-size:clamp(30px,4vw,46px);letter-spacing:-1.5px;margin:10px 0}
-.muted{color:var(--muted)}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-top:32px}
-.card{background:linear-gradient(145deg,#121e34,#0d1729);border:1px solid var(--line);border-radius:17px;padding:25px}
-.card-icon{font-size:27px;color:var(--blue2);margin-bottom:13px}
-.card h3{margin-bottom:8px}
-.card p{font-size:14px;color:var(--muted)}
-#planner{scroll-margin-top:90px}
-.planner-grid{display:grid;grid-template-columns:1.45fr .8fr;gap:22px;align-items:start;margin-top:30px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:28px}
-.progress-head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:9px}
-.progress{height:6px;background:#24334e;border-radius:20px;overflow:hidden;margin-bottom:30px}
-.progress-fill{height:100%;width:12.5%;background:var(--blue);transition:.25s}
-.question{display:none}
-.question.active{display:block}
-.question h3{font-size:25px;letter-spacing:-.6px;margin-bottom:7px}
-.question>p{color:var(--muted);font-size:14px;margin-bottom:23px}
-.field{margin:17px 0}
-.field label{display:block;font-size:13px;font-weight:750;margin-bottom:7px}
-input,select,textarea{width:100%;padding:13px 14px;color:white;background:#0b1425;border:1px solid #2b3d5c;border-radius:10px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3978ff20}
-select option{background:#101a2e}
-textarea{min-height:100px;resize:vertical}
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.option{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:13px;cursor:pointer}
-.option:has(input:checked){background:#17305b;border-color:var(--blue)}
-.option input{width:auto;margin-top:4px;accent-color:var(--blue)}
-.actions{display:flex;justify-content:space-between;gap:10px;margin-top:27px}
-.price-card{position:sticky;top:100px;background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:25px}
-.price-card h3{font-size:17px}
-.price-number{font-size:32px;font-weight:950;letter-spacing:-1px;margin:13px 0}
-.price-number small{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:0}
-.price-line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
-.price-line.total{font-weight:900;font-size:16px;border:0;padding-top:17px}
-.price-note{font-size:11px;color:var(--muted);margin-top:17px}
-.message{font-size:13px;margin-top:12px;min-height:20px;color:#ff9f9f}
-.auth-overlay{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center;padding:15px}
-.auth-overlay.show{display:flex}
-.auth-box{width:min(430px,100%);max-height:90vh;overflow:auto;background:#111e34;border:1px solid var(--line);border-radius:19px;padding:28px}
-.auth-box h2{font-size:26px}
-.auth-box p{font-size:13px;color:var(--muted);margin:6px 0 18px}
-.auth-footer{font-size:13px;color:var(--muted);margin-top:16px}
-.auth-footer button{background:none;border:0;color:var(--blue2);font-weight:800}
-.account{display:none;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
-.account.show{display:flex}
-#accountEmail{max-width:140px;overflow:hidden;text-overflow:ellipsis}
-.result{display:none;margin-top:20px;border:1px solid #255c46;background:#0c2a20;padding:22px;border-radius:14px}
-.result.show{display:block}
-.result h3{color:var(--green);margin-bottom:7px}
-.result p{font-size:13px;color:#b8d8c8}
-.result .btn{margin-top:16px;width:100%}
-footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:12px}
-.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
-@media(max-width:800px){
- .cards{grid-template-columns:1fr}
- .planner-grid{grid-template-columns:1fr}
- .price-card{position:static;grid-row:1}
- .hero{min-height:auto}
- .hero-inner{padding:75px 0}
+.menu{display:none;background:none;border:0;color:white;font-size:25px}
+.hero{height:850px;min-height:100vh;max-height:1000px;position:relative;display:flex;align-items:center;overflow:hidden;background:radial-gradient(ellipse at 75% 45%,#214a7b88,transparent 48%),linear-gradient(180deg,#071426,#0a1c33 78%,#071426)}
+#cityCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#071426 0%,#071426ed 36%,#07142625 100%);pointer-events:none}
+.hero-content{position:relative;z-index:2;padding-top:75px;max-width:680px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid #6797d544;background:#244d8028;padding:9px 14px;border-radius:30px;color:#a9c8f5;font-size:10px;letter-spacing:2px;margin-bottom:25px}
+.dot{width:7px;height:7px;border-radius:50%;background:#75adff;box-shadow:0 0 12px #75adff}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif}
+h1{font-size:clamp(50px,7vw,86px);line-height:1.02;letter-spacing:-5px}
+.gradient{background:linear-gradient(100deg,#fff,#b5d0f5 65%,#6c9de5);background-clip:text;-webkit-background-clip:text;color:transparent}
+.hero-content>p{max-width:520px;color:#afc0d5;font-size:15px;line-height:1.9;margin:24px 0 30px}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:34px;margin-top:48px;color:#91a4bd;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.hero-stats strong{display:block;color:white;font:700 21px 'Space Grotesk';margin-bottom:4px}
+.scroll{position:absolute;z-index:3;bottom:25px;left:50%;transform:translateX(-50%);color:#92a7c2;font-size:10px;letter-spacing:3px}
+section{padding:100px 0}
+.kicker{font-size:10px;color:#78a9ee;font-weight:700;letter-spacing:3px;margin-bottom:14px}
+h2{font-size:clamp(32px,4vw,48px);letter-spacing:-2px;line-height:1.13}
+.desc{color:var(--muted);font-size:13px;line-height:1.9;max-width:590px;margin-top:15px}
+.section-head{margin-bottom:42px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{padding:24px;border-radius:16px;background:#ffffff08;border:1px solid var(--line)}
+.stat strong{display:block;font:700 29px 'Space Grotesk'}
+.stat span{font-size:11px;color:var(--muted)}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.service{padding:27px;border-radius:18px;min-height:225px;transition:.3s;position:relative}
+.service:hover{transform:translateY(-6px);border-color:#6799e088;background:#17385c66}
+.icon{width:47px;height:47px;border-radius:14px;display:grid;place-items:center;background:#3869a044;border:1px solid #6b9bd744;font-size:21px;margin-bottom:22px}
+.service h3{font-size:17px;margin-bottom:10px}
+.service p{font-size:12px;color:var(--muted);line-height:1.8}
+.number{position:absolute;right:22px;top:20px;color:#7188a8;font-size:11px}
+.process{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.step{padding:24px;border-radius:17px}
+.step b{font:700 33px 'Space Grotesk';color:#72a5ef;display:block;margin-bottom:25px}
+.step h3{font-size:15px;margin-bottom:9px}
+.step p{font-size:12px;color:var(--muted);line-height:1.8}
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.price{padding:28px;border-radius:20px;position:relative}
+.price.featured{border-color:#6195e288;background:linear-gradient(145deg,#173b67bb,#0b1d35)}
+.price h3{font-size:18px}
+.amount{font:700 31px 'Space Grotesk';margin:19px 0 6px}
+.amount small{font:400 11px 'DM Sans';color:var(--muted)}
+.price>p{font-size:12px;color:var(--muted);line-height:1.7}
+.price ul{list-style:none;margin:22px 0}
+.price li{font-size:12px;color:#c5d1e1;padding:9px 0;border-bottom:1px solid #ffffff10}
+.price li:before{content:"✓";color:#79aeef;margin-right:9px}
+.price .btn{width:100%}
+.popular{position:absolute;right:15px;top:15px;padding:6px 10px;background:#315e9c;border-radius:20px;font-size:9px}
+.banner{padding:50px;border-radius:24px;background:radial-gradient(circle at 85% 15%,#3768a966,transparent 35%),linear-gradient(125deg,#102b4c,#0a1a2f);border:1px solid #ffffff20;display:flex;align-items:center;justify-content:space-between;gap:25px}
+.banner p{color:#a9b9ce;font-size:13px;line-height:1.8;margin-top:12px;max-width:500px}
+.contact{display:grid;grid-template-columns:.8fr 1.2fr;gap:25px;align-items:start}
+.contact-info,.form-card{padding:28px;border-radius:20px}
+.contact-info h3,.form-card h3{font-size:22px;margin-bottom:12px}
+.contact-info p,.form-card>p{font-size:12px;color:var(--muted);line-height:1.8}
+.contact-line{border-top:1px solid var(--line);padding:16px 0;margin-top:14px;font-size:13px}
+.contact-line span{display:block;color:#8298b7;font-size:10px;margin-bottom:6px;letter-spacing:1px}
+.form-card>p{margin-bottom:23px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;color:#b6c5d9}
+.field input,.field textarea,.field select{width:100%;background:#061326;border:1px solid #ffffff20;color:white;padding:14px;border-radius:10px;outline:none;font-size:13px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#5c91e5}
+.field textarea{min-height:115px;resize:vertical}
+.field select option{background:#0b1d35}
+.form-card .btn{width:100%;margin-top:18px;padding:16px}
+#formMessage{font-size:12px;margin-top:13px;line-height:1.6}
+.success{color:#8ee1b1}.error{color:#ff9eaa}
+footer{border-top:1px solid var(--line);padding:30px 0;color:#8395ae;font-size:11px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}
+footer a{color:#a9c8f5}
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;background:#010710e8;backdrop-filter:blur(15px)}
+.modal.show{display:flex}
+.modal-box{width:min(430px,100%);padding:34px;border-radius:23px;text-align:center;background:linear-gradient(145deg,#102746,#08182c);border:1px solid #ffffff25;box-shadow:0 30px 100px #0009}
+.modal-logo{width:58px;height:58px;margin:0 auto 20px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,#6397e5,#214b86);font:700 25px 'Space Grotesk'}
+.modal-box h2{font-size:27px;letter-spacing:-1px}
+.modal-box p{color:var(--muted);font-size:12px;line-height:1.8;margin:12px 0 23px}
+.modal-box .field{text-align:left;margin-bottom:14px}
+.modal-box .btn{width:100%;margin-top:7px}
+.modal-small{font-size:10px!important;color:#7187a5!important;margin-top:15px!important}
+@media(max-width:850px){
+.navlinks{display:none;position:absolute;top:65px;left:0;right:0;padding:22px;background:#091a30;border:1px solid var(--line);border-radius:15px;flex-direction:column;align-items:stretch;gap:20px}
+.navlinks.open{display:flex}.menu{display:block}
+.services,.prices{grid-template-columns:repeat(2,1fr)}
+.process{grid-template-columns:repeat(2,1fr)}
+.contact{grid-template-columns:1fr}
 }
-@media(max-width:480px){
- .navlinks{display:none}
- .nav{height:68px}
- .brand-name{font-size:19px}
- .options{grid-template-columns:1fr}
- .panel{padding:19px}
- h1{letter-spacing:-2px}
+@media(max-width:560px){
+nav{top:8px}.hero{min-height:780px;height:100svh}.hero-content{padding-top:65px}
+h1{letter-spacing:-3px}.hero-content>p{font-size:13px}
+.hero-stats{gap:20px}.stats{grid-template-columns:repeat(2,1fr)}
+.services,.prices,.process{grid-template-columns:1fr}
+.banner{padding:30px;display:block}.banner .btn{margin-top:22px}
+.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+.footer-inner{flex-direction:column;align-items:flex-start}
 }
 </style>
 </head>
-
 <body>
-<header>
- <div class="wrap nav">
-  <a class="brand" href="#">
-   <svg class="brand-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="mlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#83b0ff"/><stop offset="1" stop-color="#2864ff"/></linearGradient></defs>
-    <path d="M8 84V16h19l23 31 23-31h19v68H72V44L50 73 28 44v40Z" fill="url(#mlg)"/>
-    <path d="M8 91h84" stroke="#83b0ff" stroke-width="3"/>
-   </svg>
-   <div class="brand-name">MOD<span>LABS</span></div>
-  </a>
-  <nav class="navlinks">
-   <a href="#services">Services</a><a href="#process">Process</a><a href="#planner">Quotation</a>
-  </nav>
-  <div id="accountBar" class="account">
-   <span id="accountEmail"></span>
-   <button class="btn outline" onclick="logout()">Sign out</button>
-  </div>
-  <button class="btn outline" id="loginNav" onclick="openAuth('login')">Login</button>
+
+<nav>
+ <a href="#home" class="brand"><span class="logo">M</span><span>ModLab<small>DIGITAL STUDIO</small></span></a>
+ <div class="navlinks" id="navlinks">
+  <a href="#home">Home</a><a href="#about">About</a><a href="#services">Services</a><a href="#process">Process</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a>
  </div>
+ <span id="profileBadge" style="font-size:11px;color:#a9c8f5"></span>
+ <button class="menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+</nav>
+
+<header class="hero" id="home">
+ <canvas id="cityCanvas"></canvas>
+ <div class="container">
+  <div class="hero-content">
+   <div class="eyebrow"><span class="dot"></span> DIGITAL EXPERIENCES STUDIO</div>
+   <h1>We build<br><span class="gradient">beyond limits.</span></h1>
+   <p>We transform ambitious ideas into powerful digital experiences. Modern websites, thoughtful design and technology built to move businesses forward.</p>
+   <div class="actions"><a href="#contact" class="btn">Start your project ↗</a><a href="#services" class="btn secondary">Explore services ↓</a></div>
+   <div class="hero-stats"><div><strong>01</strong>Creative thinking</div><div><strong>02</strong>Modern technology</div><div><strong>03</strong>Built for growth</div></div>
+  </div>
+ </div>
+ <div class="scroll">SCROLL TO EXPLORE ↓</div>
 </header>
 
 <main>
-<section class="hero">
- <div class="wrap hero-inner">
-  <div class="eyebrow">MODLABS · Digital solutions</div>
-  <h1>Ideas into<br><span class="gradient">digital reality.</span></h1>
-  <p>We create modern websites and digital experiences designed to help businesses move forward. Tell us what you need and receive an instant project estimate.</p>
-  <div class="hero-actions">
-   <button class="btn" onclick="startPlanner()">Build your quotation ↗</button>
-   <a class="btn outline" href="#services">Explore services</a>
-  </div>
+<section id="about"><div class="container">
+ <div class="section-head"><div class="kicker">01 / WHO WE ARE</div><h2>Ideas deserve<br><span class="gradient">extraordinary execution.</span></h2><p class="desc">ModLab is a digital studio focused on creating meaningful online experiences. We combine design, technology and strategy to help brands stand out in a digital world.</p></div>
+ <div class="stats"><div class="stat"><strong>01</strong><span>Creative direction</span></div><div class="stat"><strong>02</strong><span>Digital development</span></div><div class="stat"><strong>03</strong><span>Responsive experiences</span></div><div class="stat"><strong>∞</strong><span>Room to innovate</span></div></div>
+</div></section>
+
+<section id="services"><div class="container">
+ <div class="section-head"><div class="kicker">02 / WHAT WE DO</div><h2>Digital solutions.<br><span class="gradient">Real-world impact.</span></h2><p class="desc">Everything your brand needs to build a stronger digital presence.</p></div>
+ <div class="services">
+  <article class="service glass"><span class="number">01</span><div class="icon">✦</div><h3>Website Development</h3><p>Professional, responsive websites designed to represent your business and convert visitors into customers.</p></article>
+  <article class="service glass"><span class="number">02</span><div class="icon">◈</div><h3>UI / UX Design</h3><p>Thoughtful interfaces and smooth user experiences that make every interaction feel effortless.</p></article>
+  <article class="service glass"><span class="number">03</span><div class="icon">⌘</div><h3>Business Websites</h3><p>Digital storefronts, company profiles and service websites tailored to your business goals.</p></article>
+  <article class="service glass"><span class="number">04</span><div class="icon">▣</div><h3>Landing Pages</h3><p>Focused landing pages built for campaigns, products, promotions and lead generation.</p></article>
+  <article class="service glass"><span class="number">05</span><div class="icon">⚙</div><h3>Web Applications</h3><p>Interactive web experiences, dashboards and custom functionality for your workflow.</p></article>
+  <article class="service glass"><span class="number">06</span><div class="icon">↗</div><h3>Website Maintenance</h3><p>Updates, improvements and ongoing support to keep your website performing smoothly.</p></article>
  </div>
-</section>
+</div></section>
 
-<section class="section" id="services">
- <div class="wrap">
-  <div class="eyebrow">What we do</div>
-  <h2 class="section-heading">Designed to make an impact.</h2>
-  <p class="muted">Digital experiences for businesses, brands and ambitious ideas.</p>
-  <div class="cards">
-   <article class="card"><div class="card-icon">✳</div><h3>Business websites</h3><p>Professional websites that communicate your services, identity and value.</p></article>
-   <article class="card"><div class="card-icon">▦</div><h3>E-commerce</h3><p>Online catalogues and shopping experiences for your products.</p></article>
-   <article class="card"><div class="card-icon">⌘</div><h3>Custom platforms</h3><p>Interactive web experiences designed around your requirements.</p></article>
-  </div>
+<section id="process"><div class="container">
+ <div class="section-head"><div class="kicker">03 / HOW WE WORK</div><h2>From first idea<br><span class="gradient">to final launch.</span></h2><p class="desc">A clear, collaborative process keeps your project moving in the right direction.</p></div>
+ <div class="process">
+  <div class="step glass"><b>01</b><h3>Discover</h3><p>We understand your business, audience, goals and project requirements.</p></div>
+  <div class="step glass"><b>02</b><h3>Design</h3><p>We plan the structure and create a visual direction for your website.</p></div>
+  <div class="step glass"><b>03</b><h3>Develop</h3><p>We bring the design to life with responsive layouts and modern technology.</p></div>
+  <div class="step glass"><b>04</b><h3>Launch</h3><p>After review and testing, your website is ready to go live.</p></div>
  </div>
-</section>
+</div></section>
 
-<section class="section" id="process">
- <div class="wrap">
-  <div class="eyebrow">Our process</div>
-  <h2 class="section-heading">A clear path from idea to launch.</h2>
-  <div class="cards">
-   <article class="card"><h3>01 · Discover</h3><p>Tell us about your business and website requirements.</p></article>
-   <article class="card"><h3>02 · Plan</h3><p>Review your project scope and estimated quotation.</p></article>
-   <article class="card"><h3>03 · Build</h3><p>After the final quotation is agreed, the project can move forward.</p></article>
-  </div>
+<section id="pricing"><div class="container">
+ <div class="section-head"><div class="kicker">04 / PROJECT INVESTMENT</div><h2>Clear starting points.<br><span class="gradient">Custom possibilities.</span></h2><p class="desc">Every project is different. These packages provide a starting point; your final quotation depends on the features and requirements.</p></div>
+ <div class="prices">
+  <article class="price glass"><h3>Starter</h3><div class="amount">LKR 5,999 <small>/ starting</small></div><p>For individuals and small projects establishing an online presence.</p><ul><li>Single-page website</li><li>Responsive design</li><li>Contact section</li><li>Basic visual styling</li><li>Launch assistance</li></ul><a class="btn secondary" href="#contact" onclick="chooseService('Landing Page')">Choose Starter</a></article>
+  <article class="price glass featured"><span class="popular">POPULAR</span><h3>Business</h3><div class="amount">LKR 14,999 <small>/ starting</small></div><p>For businesses looking for a polished and professional website.</p><ul><li>Multi-section website</li><li>Responsive design</li><li>Service presentation</li><li>Contact / enquiry form</li><li>Modern animations</li><li>Launch assistance</li></ul><a class="btn" href="#contact" onclick="chooseService('Business Website')">Choose Business</a></article>
+  <article class="price glass"><h3>Advanced</h3><div class="amount">Custom <small>/ quotation</small></div><p>For custom platforms and advanced business requirements.</p><ul><li>Custom website design</li><li>Advanced functionality</li><li>Database integration</li><li>Custom dashboards</li><li>Tailored development</li><li>Project-based support</li></ul><a class="btn secondary" href="#contact" onclick="chooseService('Web Application')">Request a Quote</a></article>
  </div>
-</section>
+</div></section>
 
-<section class="section" id="planner">
- <div class="wrap">
-  <div class="eyebrow">Project planner</div>
-  <h2 class="section-heading">Let's build your quotation.</h2>
-  <p class="muted">Complete the questions to receive an estimated project price.</p>
+<section><div class="container"><div class="banner"><div><div class="kicker">YOUR NEXT DIGITAL PROJECT</div><h2>Let's build something<br><span class="gradient">worth remembering.</span></h2><p>Have an idea? Tell us what you're planning. We'll review your requirements and prepare a quotation.</p></div><a class="btn" href="#contact">Start a project ↗</a></div></div></section>
 
-  <div class="planner-grid">
-   <div class="panel">
-    <div class="progress-head"><span id="stepLabel">Step 1 of 8</span><span id="stepPercent">13%</span></div>
-    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
-
-    <form id="quoteForm">
-     <div class="question active" data-step="0">
-      <h3>Your details.</h3><p>How can we identify your project?</p>
-      <div class="field"><label>Full name *</label><input name="customer_name" required placeholder="Your name"></div>
-      <div class="field"><label>Business name *</label><input name="business_name" required placeholder="Your business"></div>
-      <div class="field"><label>Email address *</label><input type="email" name="customer_email" required placeholder="you@example.com"></div>
-      <div class="field"><label>Phone / WhatsApp *</label><input name="customer_phone" required placeholder="+94 ..."></div>
-     </div>
-
-     <div class="question" data-step="1">
-      <h3>What are we building?</h3><p>Choose the closest project type.</p>
-      <div class="field"><label>Website type *</label><select name="website_type" required>
-       <option value="">Choose a type</option>
-       <option value="landing">Landing page</option><option value="business">Business website</option>
-       <option value="portfolio">Portfolio website</option><option value="store">Online store</option>
-       <option value="webapp">Custom web application</option>
-      </select></div>
-      <div class="field"><label>Business category</label><select name="business_type">
-       <option value="">Choose one</option><option>Education</option><option>Retail</option>
-       <option>Food and hospitality</option><option>Technology</option>
-       <option>Professional services</option><option>Health and wellness</option>
-       <option>Personal brand</option><option>Other</option>
-      </select></div>
-     </div>
-
-     <div class="question" data-step="2">
-      <h3>What's the main goal?</h3><p>What should the website help you achieve?</p>
-      <div class="field"><label>Main purpose</label><select name="goal">
-       <option>Introduce my business</option><option>Get more enquiries</option>
-       <option>Sell products online</option><option>Show my portfolio</option>
-       <option>Accept bookings</option><option>Share information</option>
-       <option>Create a custom platform</option>
-      </select></div>
-      <div class="field"><label>Target audience</label><input name="audience" placeholder="Who will visit your website?"></div>
-     </div>
-
-     <div class="question" data-step="3">
-      <h3>Website structure.</h3><p>How much content will the website contain?</p>
-      <div class="field"><label>Number of pages</label><select name="page_count" id="pageCount">
-       <option value="1">1 page</option><option value="3">2–3 pages</option>
-       <option value="5" selected>4–5 pages</option><option value="8">6–8 pages</option>
-       <option value="10">9–10 pages</option><option value="15">More than 10 pages</option>
-      </select></div>
-      <div class="field"><label>New website or redesign?</label><select name="project_status">
-       <option>New website</option><option>Redesign existing website</option>
-       <option>Adding features to an existing website</option>
-      </select></div>
-      <div class="field"><label>Existing website link (optional)</label><input name="existing_website" placeholder="https://"></div>
-     </div>
-
-     <div class="question" data-step="4">
-      <h3>Choose your features.</h3><p>Select all the features you need. Payment features are not offered through this quotation form.</p>
-      <div class="options">
-       <label class="option"><input type="checkbox" name="features" value="WhatsApp integration"> WhatsApp integration</label>
-       <label class="option"><input type="checkbox" name="features" value="Contact form"> Contact form</label>
-       <label class="option"><input type="checkbox" name="features" value="Product catalogue"> Product catalogue</label>
-       <label class="option"><input type="checkbox" name="features" value="Booking system"> Booking system</label>
-       <label class="option"><input type="checkbox" name="features" value="Customer accounts"> Customer accounts</label>
-       <label class="option"><input type="checkbox" name="features" value="Blog / news"> Blog / news</label>
-       <label class="option"><input type="checkbox" name="features" value="Live chat"> Live chat</label>
-       <label class="option"><input type="checkbox" name="features" value="SEO / analytics"> SEO / analytics</label>
-       <label class="option"><input type="checkbox" name="features" value="Custom animations"> Custom animations</label>
-      </div>
-     </div>
-
-     <div class="question" data-step="5">
-      <h3>Your design direction.</h3><p>Choose a style that matches your brand.</p>
-      <div class="field"><label>Preferred style</label><select name="design_style">
-       <option>Modern and professional</option><option>Luxury and premium</option>
-       <option>Clean and minimal</option><option>Creative and colourful</option>
-       <option>Dark and futuristic</option><option>Recommend a style for me</option>
-      </select></div>
-      <div class="field"><label>Preferred colours</label><input name="colours" placeholder="Example: navy and white"></div>
-      <div class="field"><label>Design reference website</label><input name="reference_website" placeholder="Optional link"></div>
-     </div>
-
-     <div class="question" data-step="6">
-      <h3>What materials do you have?</h3><p>Let us know what is ready.</p>
-      <div class="field"><label>Logo</label><select name="logo_status"><option>Logo ready</option><option>Need a logo</option><option>Need a logo redesign</option></select></div>
-      <div class="field"><label>Website content</label><select name="content_ready"><option>All text and images ready</option><option>Some content ready</option><option>Need help preparing content</option></select></div>
-      <div class="field"><label>Mobile compatibility</label><select name="mobile_support"><option>Mobile and desktop</option><option>Mostly mobile</option><option>Not sure</option></select></div>
-     </div>
-
-     <div class="question" data-step="7">
-      <h3>Final project details.</h3><p>Give us an idea of your expectations.</p>
-      <div class="field"><label>Expected budget</label><select name="budget">
-       <option>Not sure yet</option><option>Under LKR 10,000</option>
-       <option>LKR 10,000–20,000</option><option>LKR 20,000–35,000</option>
-       <option>LKR 35,000–50,000</option><option>Above LKR 50,000</option>
-      </select></div>
-      <div class="field"><label>Preferred timeline</label><select name="timeline">
-       <option>As soon as possible</option><option>Within 2 weeks</option>
-       <option>Within a month</option><option>Flexible</option>
-      </select></div>
-      <div class="field"><label>Additional requirements</label><textarea name="extra_notes" placeholder="Tell us anything else about your project..."></textarea></div>
-     </div>
-
-     <div class="actions">
-      <button type="button" class="btn outline" id="backBtn" onclick="previousStep()" disabled>← Back</button>
-      <button type="button" class="btn" id="nextBtn" onclick="nextStep()">Continue →</button>
-     </div>
-     <div class="message" id="formMessage"></div>
-    </form>
-
-    <div class="result" id="result">
-     <h3>✓ Your quotation request has been submitted.</h3>
-     <p>Your estimated quotation is ready. Download your A4 PDF below. MODLABS will review your requirements and confirm the final quotation separately.</p>
-     <button class="btn" onclick="downloadPDF()">↓ Download your quotation (PDF)</button>
-     <button class="btn outline" style="width:100%;margin-top:10px" onclick="newQuotation()">Start another quotation</button>
-    </div>
+<section id="contact"><div class="container">
+ <div class="section-head"><div class="kicker">05 / LET'S TALK</div><h2>Tell us about<br><span class="gradient">your project.</span></h2><p class="desc">Complete the quotation request. Your details will be submitted to our project database.</p></div>
+ <div class="contact">
+  <div class="contact-info glass"><h3>Let's connect.</h3><p>Share your vision with us. We'll review the details and get back to you about the next steps.</p><div class="contact-line"><span>Studio</span>ModLab Digital Studio</div><div class="contact-line"><span>Instagram</span><a href="https://www.instagram.com/modlab_websites/" target="_blank" rel="noopener">@modlab_websites ↗</a></div><div class="contact-line"><span>Service</span>Web design & digital development</div><div class="contact-line"><span>Location</span>Sri Lanka</div></div>
+  <form class="form-card glass" id="quoteForm">
+   <h3>Request a quotation</h3><p>Fields marked * are required.</p>
+   <div class="form-grid">
+    <div class="field"><label for="qname">Full name *</label><input id="qname" required maxlength="100" placeholder="Your name"></div>
+    <div class="field"><label for="qemail">Email address *</label><input id="qemail" type="email" required maxlength="254" placeholder="you@example.com"></div>
+    <div class="field"><label for="qcompany">Company / Brand</label><input id="qcompany" maxlength="150" placeholder="Business name"></div>
+    <div class="field"><label for="qservice">Service required *</label><select id="qservice" required><option value="">Select a service</option><option>Business Website</option><option>Landing Page</option><option>E-commerce Website</option><option>Web Application</option><option>UI / UX Design</option><option>Website Maintenance</option><option>Other</option></select></div>
+    <div class="field"><label for="qbudget">Estimated budget *</label><select id="qbudget" required><option value="">Select your budget</option><option>Below LKR 10,000</option><option>LKR 10,000 - 25,000</option><option>LKR 25,000 - 50,000</option><option>LKR 50,000 - 100,000</option><option>Above LKR 100,000</option><option>Not decided yet</option></select></div>
+    <div class="field"><label for="qtimeline">Expected timeline</label><select id="qtimeline"><option value="">Select timeline</option><option>As soon as possible</option><option>Within 1-2 weeks</option><option>Within a month</option><option>Flexible</option></select></div>
+    <div class="field full"><label for="qdetails">Tell us about your project *</label><textarea id="qdetails" required maxlength="5000" placeholder="What do you want to build? What features do you need?"></textarea></div>
    </div>
-
-   <aside class="price-card">
-    <div class="eyebrow">Live estimate</div>
-    <h3>Your project estimate</h3>
-    <div class="price-number" id="liveTotal">LKR 24,999</div>
-    <div class="price-line"><span>Website base</span><strong id="basePrice">LKR 24,999</strong></div>
-    <div class="price-line"><span>Additional pages</span><strong id="pagePrice">LKR 0</strong></div>
-    <div class="price-line"><span>Selected features</span><strong id="featurePrice">LKR 0</strong></div>
-    <div class="price-line total"><span>Estimated total</span><strong id="totalPrice">LKR 24,999</strong></div>
-    <p class="price-note">This is an automated planning estimate, not a binding final quotation. The final price is confirmed after MODLABS reviews the project.</p>
-   </aside>
-  </div>
+   <button class="btn" id="submitBtn" type="submit">Submit quotation request ↗</button><div id="formMessage" aria-live="polite"></div>
+  </form>
  </div>
-</section>
+</div></section>
 </main>
 
-<footer>
- <div class="wrap footer-inner">
-  <span>© <span id="year"></span> MODLABS. All rights reserved.</span>
-  <span>DIGITAL SOLUTIONS · WEB DEVELOPMENT</span>
-  <span>Built with purpose.</span>
- </div>
-</footer>
+<footer><div class="container footer-inner"><a class="brand" href="#home"><span class="logo">M</span><span>ModLab<small>DIGITAL STUDIO</small></span></a><span>© <span id="year"></span> ModLab. All rights reserved.</span><a href="https://www.instagram.com/modlab_websites/" target="_blank">Instagram ↗</a></div></footer>
 
-<div class="auth-overlay" id="authOverlay">
- <div class="auth-box">
-  <div class="brand" style="margin-bottom:20px">
-   <svg class="brand-logo" viewBox="0 0 100 100"><path d="M8 84V16h19l23 31 23-31h19v68H72V44L50 73 28 44v40Z" fill="#3978ff"/></svg>
-   <div class="brand-name">MOD<span>LABS</span></div>
-  </div>
-  <h2 id="authTitle">Welcome back.</h2>
-  <p id="authDescription">Sign in to continue with your quotation.</p>
-  <div id="signupFields" style="display:none">
-   <div class="field"><label>Full name</label><input id="authName" autocomplete="name"></div>
-   <div class="field"><label>Business name</label><input id="authBusiness"></div>
-   <div class="field"><label>Phone / WhatsApp</label><input id="authPhone" autocomplete="tel"></div>
-  </div>
-  <div class="field"><label>Email address</label><input id="authEmail" type="email" autocomplete="email"></div>
-  <div class="field"><label>Password</label><input id="authPassword" type="password" autocomplete="current-password"></div>
-  <button class="btn" style="width:100%" id="authSubmit" onclick="submitAuth()">Sign in</button>
-  <button class="btn outline" style="width:100%;margin-top:10px" onclick="closeAuth()">Cancel</button>
-  <div class="message" 
+<div class="modal" id="welcomeModal"><div class="modal-box"><div class="modal-logo">M</div><div class="kicker">WELCOME TO MODLAB</div><h2>Let's get started.</h2><p>Enter your name and email to personalise your visit and prepare your quotation request.</p><form id="welcomeForm"><div class="field"><label for="visitorName">Your name</label><input id="visitorName" required maxlength="100" placeholder="Enter your name"></div><div class="field"><label for="visitorEmail">Email address</label><input id="visitorEmail" type="email" required maxlength="254" placeholder="Enter your email"></div><button class="btn" type="submit">Enter ModLab ↗</button></form><p class="modal-small">No password or email confirmation. This is a visitor profile, not verified account authentication.</p></div></div>
+
+<script>
+// SUPABASE — public publishable key only
+const SUPABASE_URL="https://hwmlbzyeraznzkykofhi.supabase.co";
+const SUPABASE_KEY="sb_publishable_liAYQSW8zOGTot4vi5_rgg_sRDlFt0y";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+// SIMPLE VISITOR PROFILE
+const welcomeModal=document.getElementById("welcomeModal");
+const profileBadge=document.getElementById("profileBadge");
+function getVisitor(){try{return JSON.parse(localStorage.getItem("modlabVisitor")||"null")}catch(e){return null}}
+function saveVisitor(p){localStorage.setItem("modlabVisitor",JSON.stringify(p));updateVisitor()}
+function updateVisitor(){
+ const p=getVisitor();
+ if(p){profileBadge.style.display="inline";profileBadge.textContent="Hi, "+p.name.split(" ")[0];document.getElementById("qname").value=p.name;document.getElementById("qemail").value=p.email}
+}
+if(!getVisitor())welcomeModal.classList.add("show");else updateVisitor();
+document.getElementById("welcomeForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const name=document.getElementById("visitorName").value.trim();
+ const email=document.getElementById("visitorEmail").value.trim();
+ if(!name||!email)return;
+ saveVisitor({name,email});
+ welcomeModal.classList.remove("show");
+});
+
+// PACKAGE SELECTION
+function chooseService(s){document.getElementById("qservice").value=s}
+
+// QUOTATION SUBMISSION
+const quoteForm=document.getElementById("quoteForm");
+const submitBtn=document.getElementById("submitBtn");
+const message=document.getElementById("formMessage");
+quoteForm.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const data={
+  user_id:null,
+  name:document.getElementById("qname").value.trim(),
+  email:document.getElementById("qemail").value.trim(),
+  company:document.getElementById("qcompany").value.trim()||null,
+  service:document.getElementById("qservice").value,
+  budget:document.getElementById("qbudget").value,
+  timeline:document.getElementById("qtimeline").value||null,
+  details:document.getElementById("qdetails").value.trim(),
+  status:"Received"
+ };
+ if(data.details.length<10){message.className="error";message.textContent="Please provide more details about your project.";return}
+ submitBtn.disabled=true;submitBtn.textContent="Submitting...";
+ message.className="";message.textContent="Sending your quotation request...";
+ try{
+  const {error}=await db.from("quotations").insert([data]);
+  if(error)throw error;
+  message.className="success";
+  message.textContent="✓ Your quotation request was submitted successfully. Thank you for choosing ModLab!";
+  quoteForm.reset();
+  updateVisitor();
+ }catch(err){
+  console.error(err);
+  message.className="error";
+  message.textContent="Submission failed. Please try again or contact us through Instagram.";
+ }finally{
+  submitBtn.disabled=false;
+  submitBtn.textContent="Submit quotation request ↗";
+ }
+});
+
+// MOBILE NAV
+document.querySelectorAll(".navlinks a").forEach(a=>a.addEventListener("click",()=>document.getElementById("navlinks").classList.remove("open")));
+document.getElementById("year").textContent=new Date().getFullYear();
+
+// THREE.JS ANIMATED CITY
+(function(){
+ const canvas=document.getElementById("cityCanvas");
+ if(!window.THREE)return;
+ try{
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x071426,.024);
+  const camera=new THREE.PerspectiveCamera(48,1,.1,150);
+  camera.position.set(14,13,22);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+  renderer.setClearColor(0x071426,0);
+  scene.add(new THREE.AmbientLight(0x9bbce8,1.3));
+  const sun=new THREE.DirectionalLight(0xc4dcff,2);sun.position.set(8,18,10);scene.add(sun);
+  const glow=new THREE.PointLight(0x3678d4,35,45);glow.position.set(-8,7,-8);scene.add(glow);
+  const city=new THREE.Group();scene.add(city);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:0x0a1a2e,roughness:.85}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-.2;city.add(ground);
+  const grid=new THREE.GridHelper(70,45,0x29466a,0x19314d);grid.position.y=-.17;city.add(grid);
+  const road=new THREE.Mesh(new THREE.BoxGeometry(60,.08,5),new THREE.MeshStandardMaterial({color:0x101e31}));
+  road.position.set(0,-.12,5);city.add(road);
+  const mats=[0x142c49,0x1b3553,0x203e62,0x10243c].map(c=>new THREE.MeshStandardMaterial({color:c,metalness:.35,roughness:.55}));
+  const winMat=new THREE.MeshBasicMaterial({color:0x78a9ed});
+  for(let i=0;i<43;i++){
+   const x=(Math.random()-.5)*45,z=(Math.random()-.5)*36-3;
+   if(Math.abs(z)<5)continue;
+   const w=1.2+Math.random()*2.2,d=1.2+Math.random()*2.2,h=2.5+Math.random()*12;
+   const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mats[Math.floor(Math.random()*mats.length)]);
+   b.position.set(x,h/2-.2,z);city.add(b);
+   for(let y=1;y<h-.5;y+=1.25)for(let xx=-w/2+.3;xx<w/2-.1;xx+=.65){
+    if(Math.random()>.6)continue;
+    const win=new THREE.Mesh(new THREE.BoxGeometry(.23,.35,.035),winMat);
+    win.position.set(x+xx,y-.2,z+d/2+.02);city.add(win);
+   }
+  }
+  const markerMat=new THREE.MeshBasicMaterial({color:0x8db6ef});
+  for(let i=-25;i<28;i+=4){const m=new THREE.Mesh(new THREE.BoxGeometry(2,.025,.07),markerMat);m.position.set(i,-.04,5);city.add(m)}
+  const car=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(1.5,.42,.72),new THREE.MeshStandardMaterial({color:0x477ec3,metalness:.65,roughness:.3}));body.position.y=.42;car.add(body);
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(.75,.35,.58),new THREE.MeshStandardMaterial({color:0x8eb7ec,metalness:.3,roughness:.25}));roof.position.set(-.12,.78,0);car.add(roof);
+  for(const x of [-.48,.48])for(const z of [-.38,.38]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,.12,12),new THREE.MeshStandardMaterial({color:0x050a12}));w.rotation.x=Math.PI/2;w.position.set(x,.2,z);car.add(w)}
+  car.position.set(-24,0,5);city.add(car);
+  function resize(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+  addEventListener("resize",resize);resize();
+  let t=0;
+  function animate(){requestAnimationFrame(animate);t+=.005;car.position.x=-24+((t*5)%48);city.rotation.y=Math.sin(t*.25)*.025;camera.position.x=14+Math.sin(t*.2)*.5;camera.lookAt(0,2,0);renderer.render(scene,camera)}
+  animate();
+ }catch(e){console.warn("3D animation unavailable",e)}
+})();
+</script>
+</body>
+</html>
